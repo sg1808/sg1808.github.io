@@ -7,27 +7,8 @@ from lifelines import CoxPHFitter
 from lifelines.utils import concordance_index as cindex
 from sklearn.model_selection import train_test_split
 
-from util import load_data
-
-import os
-
-import pandas as pd
-
-__location__ = os.path.realpath(
-    os.path.join(os.getcwd(), os.path.dirname(__file__))
-)
-
-def load_data():
-    df = pd.read_csv(os.path.join(__location__, 'pbc.csv'))
-    df = df.drop('id', axis=1)
-    df = df[df.status != 1]
-    df.loc[:, 'status'] = df.status / 2.0
-    df.loc[:, 'time'] = df.time / 365.0
-    df.loc[:, 'trt'] = df.trt - 1
-    df.loc[:, 'sex'] = df.sex.map({'f':0.0, 'm':1.0})
-    df = df.dropna(axis=0)
-
-    return df
+from load import load_data
+df = load_data()
 
 print(df.shape)
 df.head()
@@ -133,18 +114,11 @@ print("Train:", cox_train_scores)
 print("Val:", cox_val_scores)
 print("Test:", cox_test_scores)
 
-# Commented out IPython magic to ensure Python compatibility.
-# %load_ext rpy2.ipython
-# %R require(ggplot2)
 
 from rpy2.robjects.packages import importr
-# import R's "base" package
 base = importr('base')
-
-# import R's "utils" package
 utils = importr('utils')
 
-# import rpy2's package module
 import rpy2.robjects.packages as rpackages
 
 forest = rpackages.importr('randomForestSRC', lib_loc='R')
